@@ -1,0 +1,91 @@
+
+#define steer1  2 //steer1&steer2 dipake buat control relay (motor depan (belok kiri/kanan))
+#define steer2  4
+#define US1TrigPin 13 //Ultrasonic kiri
+#define US1EchoPin 12
+#define US2TrigPin 18 //Ulrasonic kanan
+#define US2EchoPin 19
+
+
+
+//Variables
+long distance1,distance2;//distance1= jarak benda dari Ultrasonic kiri, distance2 = jarak benda dari Ultrasonic kanan
+long proximity=20;     //Jarak minimum untuk dianggap dekat (dalam cm)
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  pinMode(steer1, OUTPUT);
+  pinMode(steer2, OUTPUT);
+  pinMode(US1TrigPin, OUTPUT);
+  pinMode(US1EchoPin, INPUT);
+  pinMode(US2TrigPin, OUTPUT);
+  pinMode(US2EchoPin, INPUT);
+      
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  //****************************************ULTRASONIC*******************************************//
+
+  //**ULTRASONIC KIRI**//
+  digitalWrite(US1TrigPin,LOW);
+  delayMicroseconds(5);
+  digitalWrite(US1TrigPin,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(US1TrigPin,LOW);
+  delayMicroseconds(5);
+
+  distance1 = pulseIn(US1EchoPin, HIGH); //US kiri
+  
+  //**ULTRASONIC KANAN**//
+  digitalWrite(US2TrigPin,LOW);
+  delayMicroseconds(5);
+  digitalWrite(US2TrigPin,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(US2TrigPin,LOW);
+  delayMicroseconds(5);
+
+  distance2 = pulseIn(US2EchoPin, HIGH);  //US kanan
+
+
+  distance1 = (distance1/2)/29.1; //Diubah ke cm
+  distance2 = (distance2/2)/29.1;
+
+  Serial.print(distance1);
+  Serial.println(" cm, US KIRI");
+  Serial.print(distance2);
+  Serial.println(" cm, US KANAN");
+  delay(50);
+
+  if(proximity<distance1&&proximity<distance2){
+    digitalWrite(steer1, LOW);
+    digitalWrite(steer2, LOW); //do nothing (Lurus)
+  }
+  else if(proximity>distance1&&proximity>distance2){
+    digitalWrite(steer1, HIGH);
+    delay(3000);
+    digitalWrite(steer1, LOW);  //Temporary action)
+    
+  }
+  else if(proximity>distance1&&proximity<distance2){
+    digitalWrite(steer1, HIGH);
+    delay(3000);
+    digitalWrite(steer1, LOW);  //turn left
+  }
+   else if(proximity<distance1&&proximity>distance2){
+    digitalWrite(steer2, HIGH);
+    delay(3000);
+    digitalWrite(steer2, LOW);  //turn right
+  }
+  else{
+    digitalWrite(steer1, LOW);
+    digitalWrite(steer2, LOW); //do nothing
+  }
+
+
+  
+}
+
+
